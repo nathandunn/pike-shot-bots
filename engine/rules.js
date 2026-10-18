@@ -54,7 +54,7 @@ export function expectFire(b, u, x, y, t, moved = 0) {
     const guns = Math.max(1, Math.ceil(u.U.guns * u.men / u.start));
     if (d <= 3.5) mean = 3.2 * guns;                                              // canister
     else mean = 1.4 * guns * (1 - 0.7 * (d - 3) / (R - 3)) * (isMounted(t) ? 0.7 : 1);                  // roundshot through the ranks
-    const deep = t.type === 'pikeman' || t.type === 'conscript' ? 1.4 : 1;    // deep files suffer most
+    const deep = t.type === 'pikeman' || t.type === 'conscript' || t.type === 'tercio' ? 1.4 : 1;    // deep files suffer most
     mean *= deep * Math.sqrt(Math.max(0.2, t.men / 60)) * (cover < 1 ? 0.6 + cover * 0.4 : 1);
   } else {
     const f = 1.6 - 1.1 * (Math.max(1, d) - 1) / Math.max(1, R - 1);

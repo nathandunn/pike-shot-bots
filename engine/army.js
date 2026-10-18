@@ -111,6 +111,9 @@ export function deploy(army, side, cells) {
 export const LOTS = {
   footReg:   { name: 'Regiment of foot (4 shot, 2 pike)', items: { musketeer: 4, pikeman: 2 } },
   swedeSq:   { name: 'Swedish squadron (4 shot, 2 pike, a gun)', items: { musketeer: 4, pikeman: 2, artillery: 1 } },
+  dutchBde:  { name: 'Dutch brigade (3 pike & shot battalions)', items: { battalion: 3 } },
+  terciosBlk:{ name: 'Tercio in squares (2 blocks, 2 shot sleeves)', items: { tercio: 2, musketeer: 2 } },
+  swedeWing: { name: 'Swedish wing (2 horse & shot, 1 horse)', items: { horseshot: 2, harquebusier: 1 } },
   tercio:    { name: 'Tercio (3 pike, 3 shot)', items: { pikeman: 3, musketeer: 3 } },
   horseReg:  { name: 'Regiment of horse (3 troops)', items: { harquebusier: 3 } },
   cuirTroop: { name: 'Lifeguard of cuirassiers (2 troops)', items: { cuirassier: 2 } },

@@ -56,6 +56,28 @@ export const UNITS = {
     ammo: 10, move: 3, range: 4, fire: 0.042, pen: 0.6, moveFire: 1, melee: 0.8, charge: 1.1, armour: 0.1, antiCav: 1.6, morale: 48, frontage: 30, wet: 0.6,
     note: 'Part-time county militia, drilled a few days a year. Mixed shot and pike in one company, so it can half look after itself. Famous for going home.',
   },
+  battalion: {
+    name: 'Pike & shot battalion', short: 'Batt', glyph: 'battalion', men: 60, mix: { musketeer: 40, pikeman: 20 },
+    kit: 280, pay: 8, food: 4,
+    kitNote: '40 musketeers and 20 pikemen in one body: kit averaged per man',
+    ammo: 12, move: 3, range: 4, fire: 0.047, pen: 0.6, moveFire: 1, melee: 0.95, charge: 1.15, armour: 0.08, antiCav: 2.2, morale: 63, frontage: 30, wet: 0.6,
+    note: 'The Dutch and Swedish answer: shot and pike drilled as one small body, the pikes in the centre, the musketeers on the sleeves. Fires with two thirds of its men, braces against horse with the rest. Less firepower than pure shot, much harder to ride down.',
+  },
+  tercio: {
+    name: 'Tercio block', short: 'Terc', glyph: 'tercio', men: 100, mix: { pikeman: 50, musketeer: 50 },
+    kit: 300, pay: 9, food: 4,
+    kitNote: 'Half pike, half shot, veterans on 9d: kit averaged per man',
+    ammo: 12, move: 2, range: 4, fire: 0.035, pen: 0.6, moveFire: 1, melee: 1.15, charge: 1.2, armour: 0.13, antiCav: 2.6, morale: 72, frontage: 40, wet: 0.6,
+    note: 'Spain\'s deep square: a hundred men, a pike core with shot at the corners. Slow and a fat target for guns, but a hedgehog that horse cannot break and few foot can push.',
+  },
+  horseshot: {
+    name: 'Horse with commanded shot', short: 'H+S', glyph: 'horseshot', men: 50, mix: { harquebusier: 30, musketeer: 20 },
+    kit: 2064, pay: 18, food: 8,
+    kitNote: '30 troopers and 20 musketeers detached to run with them: kit averaged per man',
+    ammo: 10, move: 4, range: 4, fire: 0.03, pen: 0.55, moveFire: 1, melee: 1.1, charge: 1.4, armour: 0.18, antiCav: 1.1, morale: 66, frontage: 30, wet: 0.5,
+    mounted: true,
+    note: 'Gustavus Adolphus\'s trick at Breitenfeld (1631): small platoons of musketeers posted among the squadrons of horse, firing a volley to break up the enemy\'s charge before the troopers counter-charge. Slowed to the pace of the foot.',
+  },
   conscript: {
     name: 'Farmer conscripts', short: 'Levy', glyph: 'levy', men: 100,
     kit: 24, pay: 4, food: 4,

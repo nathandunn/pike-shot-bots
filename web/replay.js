@@ -94,7 +94,7 @@ function drawCompany(g, u, x, y, face, team, opts) {
       let fx = -r * rd + (ranks - 1) * rd / 2, fy = (f - (files - 1) / 2) * fw;
       if (opts.dis) { fx += (rnd() - 0.5) * 2.5; fy += (rnd() - 0.5) * 2.5; }
       if (routing) { fx += (rnd() - 0.5) * 16 - 4; fy += (rnd() - 0.5) * 16; }
-      figure(g, fx, fy, C, glyphOf(u.type, i), routing, rnd, opts.level);
+      figure(g, fx, fy, C, glyphOf(u.type, i, f, files), routing, rnd, opts.level);
     }
   }
   g.restore();
@@ -112,8 +112,12 @@ function drawCompany(g, u, x, y, face, team, opts) {
   if (opts.active) { g.strokeStyle = 'rgba(255,230,140,.9)'; g.lineWidth = 1.4; g.beginPath(); g.arc(0, 0, 15, 0, 7); g.stroke(); }
   g.restore();
 }
-function glyphOf(type, i) {
+function glyphOf(type, i, f = 0, files = 1) {
   if (type === 'trainedband') return i % 3 === 2 ? 'pike' : 'musket';
+  // pikes in the centre files, shot on the sleeves
+  if (type === 'battalion') return Math.abs(f - (files - 1) / 2) <= files / 6 ? 'pike' : 'musket';
+  if (type === 'tercio') return Math.abs(f - (files - 1) / 2) <= files / 4 ? 'pike' : 'musket';
+  if (type === 'horseshot') return f % 5 === 2 ? 'musket' : 'horse';
   if (type === 'conscript') return ['bill', 'fork', 'flail', 'scythe'][i % 4];
   return UNITS[type].glyph;
 }
