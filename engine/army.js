@@ -104,3 +104,36 @@ export function deploy(army, side, cells) {
   drag.forEach((i, k) => place(i, 5, k % 2 === 0 ? 1 + Math.floor(k / 2) : H - 2 - Math.floor(k / 2)));
   return pos.map(([x, y]) => [side ? W - 1 - x : x, y]);
 }
+
+// ---------------------------------------------------------------- buying the way the era bought
+// Armies were raised by the regiment and the troop, not one company at a time. A 1640s English regiment of foot
+// mustered two shot to every pike; a regiment of horse was several troops; guns came as a train.
+export const LOTS = {
+  footReg:   { name: 'Regiment of foot (4 shot, 2 pike)', items: { musketeer: 4, pikeman: 2 } },
+  swedeSq:   { name: 'Swedish squadron (4 shot, 2 pike, a gun)', items: { musketeer: 4, pikeman: 2, artillery: 1 } },
+  tercio:    { name: 'Tercio (3 pike, 3 shot)', items: { pikeman: 3, musketeer: 3 } },
+  horseReg:  { name: 'Regiment of horse (3 troops)', items: { harquebusier: 3 } },
+  cuirTroop: { name: 'Lifeguard of cuirassiers (2 troops)', items: { cuirassier: 2 } },
+  dragReg:   { name: 'Regiment of dragoons (2 companies)', items: { dragoon: 2 } },
+  hussarBan: { name: 'Hussar banner (2 troops)', items: { hussar: 2 } },
+  train:     { name: 'Train of artillery (2 batteries)', items: { artillery: 2 } },
+  county:    { name: 'County trained band (3 companies)', items: { trainedband: 3 } },
+  levy:      { name: 'Hundred\'s levy (3 companies)', items: { conscript: 3 } },
+  bows:      { name: 'Archers (2 companies)', items: { archer: 2 } },
+};
+export const LOT_IDS = Object.keys(LOTS);
+export const lotCompanies = (id, personality = 'steady') => Object.entries(LOTS[id].items).flatMap(([t, n]) => Array.from({ length: n }, () => ({ type: t, personality })));
+
+// A typical 1640s field army: about two shot to one pike among the foot, a third of the men mounted
+// (horse and dragoons), and a modest train of guns.
+export const STANDARD_MIX = { musketeer: 6, pikeman: 3, harquebusier: 3, dragoon: 1, artillery: 1 };
+export const standardArmy = (budget, opts = {}) => ({ ...buildArmy(STANDARD_MIX, budget, opts), name: 'Standard 1640s army' });
+
+// The same standard army with `share` of its money moved into one company type.
+export function marginalArmy(type, budget, { share = 0.25, ...opts } = {}) {
+  // buy the extra companies first (at least one), then spend every remaining penny on the standard mix
+  let extra = buildArmy({ [type]: 1 }, budget * share, opts);
+  if (!extra.companies.length) extra = buildArmy({ [type]: 1 }, budget, { ...opts, maxCompanies: 1 });
+  const base = buildArmy(STANDARD_MIX, budget - armyCost(extra).total, opts);
+  return { ...base, companies: [...base.companies, ...extra.companies], name: '+ ' + UNITS[type].name, added: extra.companies.length };
+}

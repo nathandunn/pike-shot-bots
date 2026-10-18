@@ -1,7 +1,7 @@
 import { createReplay } from './replay.js';
 import {
   Battle, UNITS, UNIT_IDS, RATIONS, companyCost, d2s, MAP_IDS, MAP_INFO, PRESETS, PRESET_IDS, TRAITS, TARGET_MODES,
-  ARMY_PRESETS, ARMY_PRESET_IDS, armyCost, fromPreset, BREAK_AT,
+  ARMY_PRESETS, ARMY_PRESET_IDS, armyCost, fromPreset, BREAK_AT, LOTS, LOT_IDS, lotCompanies, STANDARD_MIX,
 } from '../engine/index.js';
 
 // ------------------------------------------------------------ tiny DOM helpers
@@ -106,9 +106,12 @@ function renderArmy(side) {
       el('button', { title: 'Disband', onclick: () => { s.companies.splice(i, 1); s.preset = 'custom'; renderArmy(side); } }, '×')));
   });
   box.append(list);
-  const addSel = el('select', {}, UNIT_IDS.map((t) => el('option', { value: t }, `${UNITS[t].name} (${L(companyCost(t, s).total)})`)));
+  const lotCost = (id) => Object.entries(LOTS[id].items).reduce((t, [u, n]) => t + n * companyCost(u, s).total, 0);
+  const addSel = el('select', {},
+    el('optgroup', { label: 'As raised in the period' }, LOT_IDS.map((id) => el('option', { value: 'lot:' + id }, `${LOTS[id].name} (${L(lotCost(id))})`))),
+    el('optgroup', { label: 'Single company' }, UNIT_IDS.map((t) => el('option', { value: t }, `${UNITS[t].name} (${L(companyCost(t, s).total)})`))));
   const allSel = el('select', { onchange: (e) => { if (e.target.value) { for (const co of s.companies) co.personality = e.target.value; renderArmy(side); } } }); fillPers(allSel, '', 'All captains…');
-  box.append(el('div', { class: 'row' }, el('button', { onclick: () => { s.companies.push({ type: addSel.value, personality: 'steady' }); s.preset = 'custom'; renderArmy(side); } }, '+ Raise'), addSel, allSel));
+  box.append(el('div', { class: 'row' }, el('button', { onclick: () => { const v = addSel.value; s.companies.push(...(v.startsWith('lot:') ? lotCompanies(v.slice(4)) : [{ type: v, personality: 'steady' }])); s.preset = 'custom'; renderArmy(side); } }, '+ Raise'), addSel, allSel));
 }
 
 // ------------------------------------------------------------ battle
@@ -232,12 +235,26 @@ $('#labRun').onclick = async () => {
 
 // ------------------------------------------------------------ unit value
 fillMaps($('#uvMap'), true); fillRations($('#uvRations'));
+$('#uvMode').onchange = () => ($('#uvShare').disabled = $('#uvMode').value !== 'margin');
 $('#uvRun').onclick = async () => {
   $('#uvRun').disabled = true;
   try {
-    const args = { types: UNIT_IDS, budget: +$('#uvBudget').value * 240, days: +$('#uvDays').value, rations: $('#uvRations').value, map: $('#uvMap').value, n: +$('#uvN').value, personality: persSpec($('#uvPers').value), seed: 5 };
+    const args = { types: UNIT_IDS, budget: +$('#uvBudget').value * 240, days: +$('#uvDays').value, rations: $('#uvRations').value, map: $('#uvMap').value, n: +$('#uvN').value, personality: persSpec($('#uvPers').value), seed: 5, share: +$('#uvShare').value };
+    const out = $('#uvOut');
+    if ($('#uvMode').value === 'margin') {
+      const r = await runJob('margin', args, (p) => ($('#uvProg').style.width = pct(p)));
+      out.innerHTML = '';
+      const base = Object.entries(r.base.reduce((m, t) => ((m[t] = (m[t] || 0) + 1), m), {})).map(([t, n]) => `${n} ${UNITS[t].name.toLowerCase()}`).join(', ');
+      out.append(el('div', { class: 'card' }, el('h3', {}, `${pct(r.share)} of the money moved into one type`),
+        el('p', { class: 'note' }, `Standard army at this budget: ${base}. Each row swaps ${pct(r.share)} of it for the named type and fights the standard army ${r.n} times per field.`),
+        rankTable(r.rows, [
+          ['Extra companies of', (x) => UNITS[x.type].name], ['Win rate vs standard', (x) => pct(x.winRate)], ['Companies added', (x) => x.added],
+          ['Own men lost', (x) => pct(x.lostOwn)], ['Standard army men lost', (x) => pct(x.lostBase)],
+        ])));
+      return;
+    }
     const r = await runJob('units', args, (p) => ($('#uvProg').style.width = pct(p)));
-    const out = $('#uvOut'); out.innerHTML = '';
+    out.innerHTML = '';
     out.append(el('div', { class: 'card' }, el('h3', {}, 'What the money buys'), rankTable(r.rank, [
       ['Company type', (x) => x.name], ['Win rate', (x) => pct(x.winRate)], ['Companies bought', (x) => r.sizes[x.i]],
       ['Men', (x) => (r.sizes[x.i] * UNITS[r.types[x.i]].men).toLocaleString()], ['Cost per company', (x) => L(companyCost(r.types[x.i], args).total)],

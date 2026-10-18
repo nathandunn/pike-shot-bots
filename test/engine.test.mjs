@@ -92,3 +92,17 @@ test('every unit type can be fielded and fights', () => {
     assert.ok(r.turns > 0, t);
   }
 });
+
+import { marginalArmy, standardArmy, lotCompanies, LOT_IDS, marginalValue } from '../engine/index.js';
+test('period lots and the marginal army stay on budget', () => {
+  for (const id of LOT_IDS) assert.ok(lotCompanies(id).length >= 2, id);
+  const B = 240 * 6000;
+  assert.ok(armyCost(standardArmy(B)).total <= B);
+  for (const t of UNIT_IDS) {
+    const a = marginalArmy(t, B);
+    assert.ok(armyCost(a).total <= B, t);
+    assert.ok(a.added >= 1 && a.companies.filter((c) => c.type === t).length >= a.added, t);
+  }
+  const r = marginalValue(['musketeer', 'hussar'], { n: 2 });
+  assert.equal(r.rows.length, 2);
+});

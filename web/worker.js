@@ -1,5 +1,5 @@
 // Runs batch simulations off the main thread.
-import { matchup, mergeMatchups, tournament, unitMatrix, MAP_IDS } from '../engine/index.js';
+import { matchup, mergeMatchups, tournament, unitMatrix, marginalValue, MAP_IDS } from '../engine/index.js';
 
 self.onmessage = (ev) => {
   const { id, type, args } = ev.data;
@@ -13,6 +13,8 @@ self.onmessage = (ev) => {
     } else if (type === 'tournament') {
       const maps = args.maps === 'all' ? MAP_IDS : [args.maps];
       result = tournament(args.armies, { maps, n: args.n, seed: args.seed, weather: args.weather, onProgress: progress });
+    } else if (type === 'margin') {
+      result = marginalValue(args.types, { ...args, maps: args.map === 'all' ? MAP_IDS : [args.map], onProgress: progress });
     } else if (type === 'units') {
       const maps = args.map === 'all' ? MAP_IDS : [args.map];
       const parts = maps.map((map, k) => unitMatrix(args.types, { ...args, map, onProgress: (p) => progress((k + p) / maps.length) }));

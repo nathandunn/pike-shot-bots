@@ -73,8 +73,12 @@
   </section>
 
   <section id="value" hidden>
-    <p class="lead">What is a pound best spent on? Each army is a single company type, bought to the same budget, and they all fight each other. Cheap men come in crowds; dear horse come in handfuls.</p>
+    <p class="lead">What is the next pound best spent on? <b>At the margin</b> starts from a standard 1640s field army (two shot to a pike, a third of the men mounted, a few guns), moves a quarter of its money into one company type, and fights the result against the unaltered army. Above 50% means that type is worth more than the average pound in a normal army. <b>Single-type armies</b> is the blunt version: whole armies of one kind, all against all.</p>
     <div class="card">
+      <div class="row">
+        <label>Test <select id="uvMode"><option value="margin">At the margin (standard army)</option><option value="mono">Single-type armies</option></select></label>
+        <label>Share moved <select id="uvShare"><option value="0.15">15%</option><option value="0.25" selected>25%</option><option value="0.4">40%</option></select></label>
+      </div>
       <div class="row">
         <label>Budget £ <input id="uvBudget" type="number" value="6000" step="500" style="width:90px"></label>
         <label>Days <input id="uvDays" type="number" value="90" step="10" style="width:70px"></label>

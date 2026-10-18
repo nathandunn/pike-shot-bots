@@ -1,7 +1,7 @@
 // Batch simulation: matchups, army tournaments, unit-value matrices. Pure functions: Node or a Web Worker.
 import { Battle } from './battle.js';
 import { UNIT_IDS } from './units.js';
-import { fromPreset, monoArmy } from './army.js';
+import { fromPreset, monoArmy, standardArmy, marginalArmy } from './army.js';
 
 export function fight({ a, b, map, seed, weather = 'fair', record = false, swap = false, maxTurns = 40 }) {
   const r = new Battle({ armies: swap ? [b, a] : [a, b], map, seed, weather, record, maxTurns }).run();
@@ -71,4 +71,24 @@ export function unitMatrix(types = UNIT_IDS, { budget = 240 * 6000, map = 'open'
   const armies = types.map((t) => monoArmy(t, budget, { days, rations, personality }));
   const r = tournament(armies, { maps: [map], n, seed, weather, onProgress });
   return { ...r, types, sizes: armies.map((a) => a.companies.length) };
+}
+
+// "what is the next pound best spent on": the standard army with a quarter of its money moved into one type,
+// fought against the unaltered standard army. Above 50% means that type beats the average pound of a normal army.
+export function marginalValue(types = UNIT_IDS, { budget = 240 * 6000, share = 0.25, maps = ['open'], n = 10, seed = 1, weather = 'fair', days = 90, rations = 'full', personality = 'steady', onProgress } = {}) {
+  const opts = { days, rations, personality };
+  const base = standardArmy(budget, opts);
+  const rows = []; const total = types.length * maps.length; let done = 0;
+  for (const t of types) {
+    const army = marginalArmy(t, budget, { share, ...opts });
+    let w = 0, games = 0, lostA = 0, lostB = 0, turns = 0;
+    for (const map of maps) {
+      const r = matchup(army, base, { map, n, seed: seed + map.length * 17, weather });
+      w += r.winsA + r.draws / 2; games += r.n; lostA += r.lostA / r.menA; lostB += r.lostB / r.menB; turns += r.turns;
+      done++; onProgress && onProgress(done / total);
+    }
+    rows.push({ type: t, name: army.name, added: army.added, companies: army.companies.length, winRate: w / games, lostOwn: lostA / maps.length, lostBase: lostB / maps.length, turns: turns / maps.length });
+  }
+  rows.sort((a, b) => b.winRate - a.winRate);
+  return { rows, base: base.companies.map((c) => c.type), share, maps, n };
 }

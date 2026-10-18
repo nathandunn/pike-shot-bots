@@ -7,7 +7,8 @@ Live: https://pike-shot-bots.apps.precogsoftwareservices.com
 ## Tabs
 - **Battle**: muster two armies (presets or custom, budget, days in field, rations), pick a field and weather, then watch an animated replay or simulate 100 battles. Stats include casualties per £100 and enemy value killed per £ spent.
 - **Army lab**: round robin between historical orders of battle bought to the same budget: Swedish brigade, Spanish tercio, Cavalier horse, New Model Army, Peasant host, The old ways (bows and lances), Polish–Lithuanian, Dragoon raiders, Gun line.
-- **Unit value**: armies of a single company type at equal cost, all against all. Answers "is one troop of cuirassiers worth five companies of musketeers?".
+- **Unit value**: *at the margin* (default) takes a standard 1640s field army (6 shot : 3 pike : 3 horse : 1 dragoon : 1 battery), moves 15–40% of its money into one company type and fights it against the unaltered army; *single-type armies* is the blunt all-of-one-kind round robin.
+- **Period lots**: the Raise menu buys the way armies were raised: a regiment of foot (4 shot, 2 pike), Swedish squadron with its regimental gun, tercio, regiment of horse (3 troops), dragoon regiment, hussar banner, train of artillery, county trained band, hundred's levy.
 - **Captains**: the same army under every personality, plus an editor (saved in the browser).
 - **Price list**: kit, wages and food per company, notes on each troop type, rations, and the rules.
 
