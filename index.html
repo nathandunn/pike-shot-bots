@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pike &amp; Shot Bots</title>
+<meta name="description" content="1600s battle simulator: buy companies of musketeers, pikes, horse, guns, archers and peasant levies on a budget that pays for kit, wages and food, then let their captains' personalities fight it out.">
+<link rel="stylesheet" href="web/style.css">
+</head>
+<body>
+<header>
+  <a class="back" href="https://apps.precogsoftwareservices.com/">← Apps</a>
+  <h1>Pike &amp; <span>Shot</span> Bots</h1>
+</header>
+<nav id="tabs">
+  <button data-tab="battle" class="on">Battle</button>
+  <button data-tab="lab">Army lab</button>
+  <button data-tab="value">Unit value</button>
+  <button data-tab="captains">Captains</button>
+  <button data-tab="prices">Price list</button>
+</nav>
+<main>
+  <section id="battle">
+    <p class="lead">Raise two 17th-century armies on a budget. Every company costs its kit up front, then wages and food for each day in the field: horse eat far more than foot. Give each company a captain's personality, pick the ground and the weather, then watch them fight it out, or run a hundred battles.</p>
+    <div class="teams">
+      <div class="card army blue" id="armyA"></div>
+      <div class="card army red" id="armyB"></div>
+    </div>
+    <div class="card">
+      <div class="row">
+        <label>Field <select id="mapSel"></select></label>
+        <label>Weather <select id="weather"><option value="fair">Fair</option><option value="rain">Rain</option><option value="fog">Fog</option></select></label>
+        <label>Seed <input id="seed" type="number" value="1" style="width:80px"></label>
+      </div>
+      <div class="row">
+        <button id="fightBtn" class="primary">Fight</button>
+        <button id="simBtn">Simulate ×100</button>
+        <button id="swapBtn" title="Swap the two armies">⇄ Swap</button>
+      </div>
+      <div class="muted" id="mapBlurb"></div>
+    </div>
+    <div class="card" id="replayCard" hidden>
+      <div class="board-wrap"><canvas id="board"></canvas></div>
+      <div class="controls">
+        <button id="pPlay">▶︎</button><button id="pStep" title="Play one activation">⏭</button>
+        <input type="range" id="pScrub" min="0" max="0" value="0">
+        <select id="pSpeed"><option value="0.5">slow</option><option value="1">normal</option><option value="2" selected>fast</option><option value="4">very fast</option><option value="10">gallop</option></select>
+        <button id="pZoom">Follow</button>
+        <span class="muted" id="pTurn"></span>
+      </div>
+      <div class="legend">Bars under each company: <b>&nbsp;strength&nbsp;</b> (top) and <b>&nbsp;morale&nbsp;</b> (green → amber shaken → red breaking). Ragged ranks = disordered; scattered figures = running.</div>
+      <div class="log" id="log"></div>
+      <div id="fightStats"></div>
+    </div>
+    <div class="card" id="simCard" hidden></div>
+  </section>
+
+  <section id="lab" hidden>
+    <p class="lead">Historical armies, each bought to the same budget, fight a round robin. Sides swap every other battle and the ground is mirrored, so only the order of battle differs.</p>
+    <div class="card">
+      <div class="checks" id="labPresets"></div>
+      <div class="row">
+        <label>Budget £ <input id="labBudget" type="number" value="6000" step="500" style="width:90px"></label>
+        <label>Days <input id="labDays" type="number" value="90" step="10" style="width:70px"></label>
+        <label>Rations <select id="labRations"></select></label>
+        <label>Field <select id="labMap"></select></label>
+        <label>Battles per pairing <select id="labN"><option>4</option><option selected>8</option><option>20</option></select></label>
+        <button id="labRun" class="primary">Run</button>
+      </div>
+      <div class="progress"><i id="labProg"></i></div>
+    </div>
+    <div id="labOut"></div>
+  </section>
+
+  <section id="value" hidden>
+    <p class="lead">What is a pound best spent on? Each army is a single company type, bought to the same budget, and they all fight each other. Cheap men come in crowds; dear horse come in handfuls.</p>
+    <div class="card">
+      <div class="row">
+        <label>Budget £ <input id="uvBudget" type="number" value="6000" step="500" style="width:90px"></label>
+        <label>Days <input id="uvDays" type="number" value="90" step="10" style="width:70px"></label>
+        <label>Rations <select id="uvRations"></select></label>
+        <label>Field <select id="uvMap"></select></label>
+        <label>Battles per pairing <select id="uvN"><option>4</option><option selected>6</option><option>12</option></select></label>
+        <label>Captains <select id="uvPers" class="persSel"></select></label>
+        <button id="uvRun" class="primary">Run</button>
+      </div>
+      <div class="progress"><i id="uvProg"></i></div>
+    </div>
+    <div id="uvOut"></div>
+  </section>
+
+  <section id="captains" hidden>
+    <p class="lead">Same army, different captains. A personality is a command style, not a stat: it decides when to fire, when to charge, whether to stand by the pikes and whether to chase the beaten off the field.</p>
+    <div class="card">
+      <h3>Captains' tournament</h3>
+      <div class="row"><label>Army <select id="cdArmy"></select></label>
+        <label>Field <select id="cdMap"></select></label>
+        <label>Battles per pairing <select id="cdN"><option>4</option><option selected>8</option><option>16</option></select></label>
+        <button id="cdRun" class="primary">Run</button></div>
+      <div class="muted">Every captain (presets and yours) commands every company of the same army; each pairing is fought on mirrored ground.</div>
+      <div class="progress"><i id="cdProg"></i></div>
+      <div id="cdOut"></div>
+    </div>
+    <div class="card">
+      <h3>Captain editor</h3>
+      <div class="row"><label>Start from <select id="edBase" class="persSel"></select></label><input id="edName" placeholder="Name" style="width:150px"><button id="edSave" class="primary">Save</button><button id="edDel">Delete</button></div>
+      <div class="sliders" id="edSliders"></div>
+      <div class="row"><label>Targets <select id="edTarget"></select></label></div>
+      <div class="muted">Custom captains are stored in this browser and appear in every captain menu.</div>
+    </div>
+  </section>
+
+  <section id="prices" hidden>
+    <p class="lead">What a company costs, and why. Money is pounds, shillings and pence (12d = 1s, 20s = £1).</p>
+    <div id="pricesOut"></div>
+  </section>
+</main>
+<footer>
+  Prices rounded from English Civil War Ordnance Office and army accounts of the 1640s; mechanics simplified for play. · <a href="https://github.com/nathandunn/pike-shot-bots">Source</a>
+</footer>
+<script type="module" src="web/app.js"></script>
+</body>
+</html>
